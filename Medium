@@ -1,0 +1,381 @@
+package com.example.servlet;
+
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+@WebServlet("/EmployeeServlet")
+public class EmployeeServlet extends HttpServlet {
+	private static final String DB_URL = "jdbc:mysql://localhost:3306/employe_db"; // Changed from employee_db to employee-db
+	private static final String DB_USER = "root";
+	private static final String DB_PASSWORD = ""; // Ensure this matches your setup (empty if no password)
+
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String action = request.getParameter("action");
+        Connection conn = null;
+        try {
+            // Load and register JDBC driver
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            System.out.println("Driver loaded successfully.");
+
+            // Establish connection
+            conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+            System.out.println("Connection established successfully.");
+
+            if ("search".equals(action)) {
+                String idStr = request.getParameter("id");
+                int id = Integer.parseInt(idStr);
+                String sql = "SELECT * FROM employees WHERE id = ?";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setInt(1, id);
+                ResultSet rs = stmt.executeQuery();
+
+                com.example.servlet.Employee emp = null;
+                if (rs.next()) {
+                    emp = new com.example.servlet.Employee(
+                            rs.getInt("id"),
+                            rs.getString("name"),
+                            rs.getString("department"),
+                            rs.getDouble("salary")
+                    );
+                    request.setAttribute("employee", emp);
+                } else {
+                    request.setAttribute("error", "No employee found with ID: " + id);
+                }
+                rs.close();
+                stmt.close();
+            } else {
+                List<com.example.servlet.Employee> empList = new ArrayList<>();
+                String sql = "SELECT * FROM employees";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                ResultSet rs = stmt.executeQuery();
+
+                while (rs.next()) {
+                    empList.add(new com.example.servlet.Employee(
+                            rs.getInt("id"),
+                            rs.getString("name"),
+                            rs.getString("department"),
+                            rs.getDouble("salary")
+                    ));
+                }
+                request.setAttribute("empList", empList);
+                rs.close();
+                stmt.close();
+            }
+            conn.close();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            request.setAttribute("error", "JDBC Driver not found: " + e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+            request.setAttribute("error", "Database error: " + e.getMessage());
+        } finally {
+            if (conn != null) {
+                try { conn.close(); } catch (Exception e) { e.printStackTrace(); }
+            }
+        }
+
+        if ("search".equals(action)) {
+            request.getRequestDispatcher("employeeDetails.jsp").forward(request, response);
+        } else {
+            request.getRequestDispatcher("index.jsp").forward(request, response);
+        }
+    }
+
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        doGet(request, response);
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+//EmployeeServlet"
+
+
+
+
+
+package com.example.servlet;
+
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+@WebServlet("/EmployeeServlet")
+public class EmployeeServlet extends HttpServlet {
+	private static final String DB_URL = "jdbc:mysql://localhost:3306/employe_db"; // Changed from employee_db to employee-db
+	private static final String DB_USER = "root";
+	private static final String DB_PASSWORD = ""; // Ensure this matches your setup (empty if no password)
+
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String action = request.getParameter("action");
+        Connection conn = null;
+        try {
+            // Load and register JDBC driver
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            System.out.println("Driver loaded successfully.");
+
+            // Establish connection
+            conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+            System.out.println("Connection established successfully.");
+
+            if ("search".equals(action)) {
+                String idStr = request.getParameter("id");
+                int id = Integer.parseInt(idStr);
+                String sql = "SELECT * FROM employees WHERE id = ?";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setInt(1, id);
+                ResultSet rs = stmt.executeQuery();
+
+                com.example.servlet.Employee emp = null;
+                if (rs.next()) {
+                    emp = new com.example.servlet.Employee(
+                            rs.getInt("id"),
+                            rs.getString("name"),
+                            rs.getString("department"),
+                            rs.getDouble("salary")
+                    );
+                    request.setAttribute("employee", emp);
+                } else {
+                    request.setAttribute("error", "No employee found with ID: " + id);
+                }
+                rs.close();
+                stmt.close();
+            } else {
+                List<com.example.servlet.Employee> empList = new ArrayList<>();
+                String sql = "SELECT * FROM employees";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                ResultSet rs = stmt.executeQuery();
+
+                while (rs.next()) {
+                    empList.add(new com.example.servlet.Employee(
+                            rs.getInt("id"),
+                            rs.getString("name"),
+                            rs.getString("department"),
+                            rs.getDouble("salary")
+                    ));
+                }
+                request.setAttribute("empList", empList);
+                rs.close();
+                stmt.close();
+            }
+            conn.close();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            request.setAttribute("error", "JDBC Driver not found: " + e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+            request.setAttribute("error", "Database error: " + e.getMessage());
+        } finally {
+            if (conn != null) {
+                try { conn.close(); } catch (Exception e) { e.printStackTrace(); }
+            }
+        }
+
+        if ("search".equals(action)) {
+            request.getRequestDispatcher("employeeDetails.jsp").forward(request, response);
+        } else {
+            request.getRequestDispatcher("index.jsp").forward(request, response);
+        }
+    }
+
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        doGet(request, response);
+    }
+}
+
+
+
+
+
+//  Employyemanagement.html
+
+
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Employee Details</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f9f9f9; }
+        h2 { text-align: center; color: #333; }
+        table {
+            border-collapse: collapse;
+            width: 50%;
+            margin: 20px auto;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        .error {
+            color: red;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .back {
+            text-align: center;
+            margin: 20px;
+        }
+        .back a {
+            text-decoration: none;
+            color: #007BFF;
+            font-weight: bold;
+        }
+        .back a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Employee Details</h2>
+
+<%
+    String error = (String) request.getAttribute("error");
+    if (error != null) {
+%>
+    <p class="error"><%= error %></p>
+<%
+    }
+
+    com.example.servlet.Employee employee = (com.example.servlet.Employee) request.getAttribute("employee");
+    if (employee != null) {
+%>
+    <table>
+        <tr>
+            <th>ID</th>
+            <td><%= employee.getId() %></td>
+        </tr>
+        <tr>
+            <th>Name</th>
+            <td><%= employee.getName() %></td>
+        </tr>
+        <tr>
+            <th>Department</th>
+            <td><%= employee.getDepartment() %></td>
+        </tr>
+        <tr>
+            <th>Salary</th>
+            <td><%= employee.getSalary() %></td>
+        </tr>
+    </table>
+<%
+    } else if (error == null) {
+%>
+    <p class="error">No employee details available.</p>
+<%
+    }
+%>
+
+<div class="back">
+    <a href="EmployeeServlet">Back to Employee List</a>
+</div>
+
+</body>
+</html>
+
+
+
+
+
+//all employee
+
+
+
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Employee List</title>
+<style>
+    table { border-collapse: collapse; width: 80%; margin: 20px auto; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+    th { background-color: #f2f2f2; }
+    .form-container { text-align: center; margin: 20px; }
+    .error { color: red; text-align: center; }
+</style>
+</head>
+<body>
+<div class="form-container">
+<h2>Search Employee by ID</h2>
+<form action="EmployeeServlet" method="get">
+    <input type="hidden" name="action" value="search">
+    <label>Employee ID: </label>
+    <input type="number" name="id" required>
+    <input type="submit" value="Search">
+</form>
+</div>
+
+<h2 style="text-align: center;">All Employees</h2>
+<%
+String error = (String) request.getAttribute("error");
+if (error != null) {
+%>
+<p class="error"><%= error %></p>
+<%
+}
+java.util.List<com.example.servlet.Employee> empList = (java.util.List<com.example.servlet.Employee>) request.getAttribute("empList");
+if (empList != null && !empList.isEmpty()) {
+%>
+<table>
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Department</th>
+        <th>Salary</th>
+    </tr>
+    <% for (com.example.servlet.Employee emp : empList) { %>
+    <tr>
+        <td><%= emp.getId() %></td>
+        <td><%= emp.getName() %></td>
+        <td><%= emp.getDepartment() %></td>
+        <td><%= emp.getSalary() %></td>
+    </tr>
+    <% } %>
+</table>
+<% } else { %>
+<p class="error">No employees found.</p>
+<% } %>
+</body>
+</html>
+
